@@ -507,6 +507,7 @@ class OpenvpnHtmlPrinter(object):
     def __init__(self, cfg, monitor):
         self.init_vars(cfg.settings, monitor)
         self.print_html_header()
+        self.print_dashboard_cards()
         for key, vpn in self.vpns:
             if vpn['socket_connected']:
                 self.print_vpn(key, vpn)
@@ -526,6 +527,52 @@ class OpenvpnHtmlPrinter(object):
         self.latitude = settings.get('latitude', 40.72)
         self.longitude = settings.get('longitude', -74)
         self.datetime_format = settings.get('datetime_format')
+
+    def print_dashboard_cards(self):
+        total_clients = 0
+        for _, vpn in self.vpns:
+            if vpn['socket_connected']:
+                client_count = sum(1 for s in vpn['sessions'].values()
+                                  if s.get('connected_since'))
+                total_clients += client_count
+            else:
+                client_count = 0
+                total_clients += client_count
+
+        output('<div class="row">')
+        output('<div class="col-sm-4">')
+        output('<div class="panel panel-info">')
+        output('<div class="panel-heading">')
+        output('<h3 class="panel-title">Total Connected Clients</h3>')
+        output('</div><div class="panel-body">')
+        output('<h2>{0!s}</h2>'.format(total_clients))
+        output('</div></div></div>')
+
+        for _, vpn in self.vpns:
+            if vpn['socket_connected']:
+                client_count = sum(1 for s in vpn['sessions'].values()
+                                  if s.get('connected_since'))
+            else:
+                client_count = 0
+            output('<div class="col-sm-4">')
+            output('<div class="panel panel-primary">')
+            output('<div class="panel-heading">')
+            output('<h3 class="panel-title">{0!s}</h3>'.format(vpn['name']))
+            output('</div><div class="panel-body">')
+            output('<h2>{0!s}</h2>'.format(client_count))
+            output('</div></div></div>')
+
+        output('<div class="col-sm-4">')
+        output('<div class="panel panel-warning">')
+        output('<div class="panel-heading">')
+        output('<h3 class="panel-title">Last Update</h3>')
+        output('</div><div class="panel-body">')
+        output('<h4>{0!s}</h4>'.format(
+            datetime.now().strftime(self.datetime_format)))
+        output('</div></div></div>')
+
+        output('</div>')
+        output('<br>')
 
     def print_html_header(self):
 
