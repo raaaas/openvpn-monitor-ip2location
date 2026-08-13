@@ -141,7 +141,8 @@ class ConfigLoader(object):
         self.settings = {'site': 'Default Site',
                          'maps': 'True',
                          'geoip_data': './data/IP2LOCATION-LITE-DB11.BIN',
-                         'datetime_format': '%d/%m/%Y %H:%M:%S'}
+                         'datetime_format': '%d/%m/%Y %H:%M:%S',
+                         'refresh_seconds': '0'}
         self.vpns['Default VPN'] = {'name': 'default',
                                     'host': 'localhost',
                                     'port': '5555',
@@ -151,7 +152,7 @@ class ConfigLoader(object):
     def parse_global_section(self, config):
         global_vars = ['site', 'logo', 'latitude', 'longitude', 'maps',
                        'maps_height', 'geoip_data', 'datetime_format',
-                       'username', 'password', 'secret']
+                       'refresh_seconds', 'username', 'password', 'secret']
         for var in global_vars:
             try:
                 self.settings[var] = config.get('openvpn-monitor', var)
@@ -515,6 +516,7 @@ class OpenvpnHtmlPrinter(object):
         self.cfg = cfg
         self.init_vars(cfg.settings, monitor)
         self.print_html_header()
+        self.print_dashboard_cards()
         for key, vpn in self.vpns:
             if vpn['socket_connected']:
                 self.print_vpn(key, vpn)
@@ -533,7 +535,54 @@ class OpenvpnHtmlPrinter(object):
             self.maps_height = settings.get('maps_height', 500)
         self.latitude = settings.get('latitude', 40.72)
         self.longitude = settings.get('longitude', -74)
-        self.datetime_format = settings.get('datetime_format')
+        self.datetime_format = settings.get('datetime_format') or '%d/%m/%Y %H:%M:%S'
+        self.refresh_seconds = int(settings.get('refresh_seconds', 0) or 0)
+
+    def print_dashboard_cards(self):
+        total_clients = 0
+        for _, vpn in self.vpns:
+            if vpn['socket_connected']:
+                client_count = sum(1 for s in vpn['sessions'].values()
+                                  if s.get('connected_since'))
+                total_clients += client_count
+            else:
+                client_count = 0
+                total_clients += client_count
+
+        output('<div class="row">')
+        output('<div class="col-sm-4">')
+        output('<div class="panel panel-info">')
+        output('<div class="panel-heading">')
+        output('<h3 class="panel-title">Total Connected Clients</h3>')
+        output('</div><div class="panel-body">')
+        output('<h2>{0!s}</h2>'.format(total_clients))
+        output('</div></div></div>')
+
+        for key, vpn in self.vpns:
+            if vpn['socket_connected']:
+                client_count = sum(1 for s in vpn['sessions'].values()
+                                  if s.get('connected_since'))
+            else:
+                client_count = 0
+            output('<div class="col-sm-4">')
+            output('<div class="panel panel-primary">')
+            output('<div class="panel-heading">')
+            output('<h3 class="panel-title">{0!s}</h3>'.format(vpn.get('name') or key))
+            output('</div><div class="panel-body">')
+            output('<h2>{0!s}</h2>'.format(client_count))
+            output('</div></div></div>')
+
+        output('<div class="col-sm-4">')
+        output('<div class="panel panel-warning">')
+        output('<div class="panel-heading">')
+        output('<h3 class="panel-title">Last Update</h3>')
+        output('</div><div class="panel-body">')
+        output('<h4>{0!s}</h4>'.format(
+            datetime.now().strftime(self.datetime_format)))
+        output('</div></div></div>')
+
+        output('</div>')
+        output('<br>')
 
     def print_html_header(self):
 
@@ -546,11 +595,15 @@ class OpenvpnHtmlPrinter(object):
         output('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
         output('<meta name="viewport" content="width=device-width, initial-scale=1">')
         output('<title>{0!s} OpenVPN Status Monitor</title>'.format(self.site))
-        output('<meta http-equiv="refresh" content="300" />')
+        if self.refresh_seconds > 0:
+            output('<meta http-equiv="refresh" content="{0!s}" />'.format(self.refresh_seconds))
+        else:
+            output('<meta http-equiv="refresh" content="300" />')
 
         # css
         output('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha512-Dop/vW3iOtayerlYAqCgkVr2aTr2ErwwTYOvRFUpzl2VhCMJyjQF0Q9TjUXIo6JhuM/3i0vVEt2e/7QQmnHQqw==" crossorigin="anonymous" />')  # noqa
         output('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha512-iy8EXLW01a00b26BaqJWaCmk9fJ4PsMdgNRqV96KwMPSH+blO82OHzisF/zQbRIIi8m0PiO10dpS0QxrcXsisw==" crossorigin="anonymous" />')  # noqa
+        output('<link rel="stylesheet" href="static/style.css" />')
         output('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.bootstrap_3.min.css" integrity="sha512-1r2gsUynzocV5QbYgEwbcNGYQeQ4jgHUNZLl+PMr6o248376S3f9k8zmXvsKkU06wH0MrmQacKd0BjJ/kWeeng==" crossorigin="anonymous" />')  # noqa
         if self.maps:
             output('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous" />')  # noqa
@@ -750,7 +803,7 @@ class OpenvpnHtmlPrinter(object):
             output('<td>Unknown</td>')
         output('<td>{0!s}</td>'.format(total_time))
         if show_disconnect:
-            output('<td><form method="post">')
+            output('<td><form method="post" onsubmit="return confirm(\'Are you sure you want to disconnect this client?\');">')
             output('<input type="hidden" name="vpn_id" value="{0!s}">'.format(vpn_id))
             if session.get('port'):
                 output('<input type="hidden" name="ip" value="{0!s}">'.format(session['remote_ip']))

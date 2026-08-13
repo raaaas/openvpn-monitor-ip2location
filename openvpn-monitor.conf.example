@@ -7,6 +7,8 @@ maps=True
 maps_height=500
 geoip_data=./data/IP2LOCATION-LITE-DB11.BIN
 datetime_format=%d/%m/%Y %H:%M:%S
+# Auto-refresh the status page every N seconds (0 = keep the default 300s).
+#refresh_seconds=30
 # Uncomment and set the following three options to enable simple login.
 # When left unset the monitor works without authentication (backwards compatible).
 #username=
