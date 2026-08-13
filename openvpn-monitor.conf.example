@@ -5,7 +5,7 @@ site=Example
 #longitude=-74
 maps=True
 maps_height=500
-ip2location_db=/var/lib/GeoIP/GeoLite2-City.mmdb
+geoip_data=./data/IP2LOCATION-LITE-DB11.BIN
 datetime_format=%d/%m/%Y %H:%M:%S
 
 [VPN1]
