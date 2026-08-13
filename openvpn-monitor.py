@@ -1045,6 +1045,11 @@ def monitor_wsgi():
     def get_images(filename):
         return static_file(filename, image_dir)
 
+    @app.route('/static/<filename:path>', method='GET')
+    def get_static(filename):
+        return static_file(filename, root=os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), 'static'))
+
     return app
 
 
