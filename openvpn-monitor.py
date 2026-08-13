@@ -711,10 +711,10 @@ class OpenvpnHtmlPrinter(object):
         up_since = vpn['state']['up_since']
         show_disconnect = vpn['show_disconnect']
 
-        anchor = vpn['name'].lower().replace(' ', '_')
+        anchor = (vpn.get('name') or vpn_id).lower().replace(' ', '_')
         output('<div class="panel panel-success" id="{0!s}">'.format(anchor))
         output('<div class="panel-heading"><h3 class="panel-title">{0!s}</h3>'.format(
-            vpn['name']))
+            vpn.get('name') or vpn_id))
         output('</div><div class="panel-body">')
         output('<div class="table-responsive">')
         output('<table class="table table-condensed table-responsive">')
@@ -919,7 +919,7 @@ class OpenvpnHtmlPrinter(object):
         output('<div class="container-fluid">')
 
     def print_login_form(self):
-        self.print_nav()
+        self.print_html_header()
         output('<div class="panel panel-warning">')
         output('<div class="panel-heading"><h3 class="panel-title">Login</h3></div>')
         output('<div class="panel-body">')

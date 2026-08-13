@@ -6,6 +6,12 @@
 - add simple login ✅
 - add user history
 
+## Screenshots
+
+![openvpn-monitor](screenshots/openvpn-monitor.png)
+
+![openvpn-monitor login](screenshots/openvpn-monitor-login.png)
+
 ## Summary
 
 openvpn-monitor is a simple python program to generate html that displays the
