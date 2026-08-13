@@ -141,7 +141,8 @@ class ConfigLoader(object):
         self.settings = {'site': 'Default Site',
                          'maps': 'True',
                          'geoip_data': './data/IP2LOCATION-LITE-DB11.BIN',
-                         'datetime_format': '%d/%m/%Y %H:%M:%S'}
+                         'datetime_format': '%d/%m/%Y %H:%M:%S',
+                         'refresh_seconds': '0'}
         self.vpns['Default VPN'] = {'name': 'default',
                                     'host': 'localhost',
                                     'port': '5555',
@@ -149,7 +150,7 @@ class ConfigLoader(object):
                                     'show_disconnect': False}
 
     def parse_global_section(self, config):
-        global_vars = ['site', 'logo', 'latitude', 'longitude', 'maps', 'maps_height', 'geoip_data', 'datetime_format']
+        global_vars = ['site', 'logo', 'latitude', 'longitude', 'maps', 'maps_height', 'geoip_data', 'datetime_format', 'refresh_seconds']
         for var in global_vars:
             try:
                 self.settings[var] = config.get('openvpn-monitor', var)
@@ -526,6 +527,7 @@ class OpenvpnHtmlPrinter(object):
         self.latitude = settings.get('latitude', 40.72)
         self.longitude = settings.get('longitude', -74)
         self.datetime_format = settings.get('datetime_format')
+        self.refresh_seconds = int(settings.get('refresh_seconds', 0))
 
     def print_html_header(self):
 
@@ -538,7 +540,10 @@ class OpenvpnHtmlPrinter(object):
         output('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
         output('<meta name="viewport" content="width=device-width, initial-scale=1">')
         output('<title>{0!s} OpenVPN Status Monitor</title>'.format(self.site))
-        output('<meta http-equiv="refresh" content="300" />')
+        if self.refresh_seconds > 0:
+            output('<meta http-equiv="refresh" content="{0!s}" />'.format(self.refresh_seconds))
+        else:
+            output('<meta http-equiv="refresh" content="300" />')
 
         # css
         output('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha512-Dop/vW3iOtayerlYAqCgkVr2aTr2ErwwTYOvRFUpzl2VhCMJyjQF0Q9TjUXIo6JhuM/3i0vVEt2e/7QQmnHQqw==" crossorigin="anonymous" />')  # noqa
@@ -781,7 +786,7 @@ class OpenvpnHtmlPrinter(object):
             output('<td>Unknown</td>')
         output('<td>{0!s}</td>'.format(total_time))
         if show_disconnect:
-            output('<td><form method="post">')
+            output('<td><form method="post" onsubmit="return confirm(\'Are you sure you want to disconnect this client?\');">')
             output('<input type="hidden" name="vpn_id" value="{0!s}">'.format(vpn_id))
             if session.get('port'):
                 output('<input type="hidden" name="ip" value="{0!s}">'.format(session['remote_ip']))
@@ -851,8 +856,12 @@ class OpenvpnHtmlPrinter(object):
         output('</div></div>')
 
     def print_html_footer(self):
-        output('<div class="well well-sm">')
-        output('Page automatically reloads every 5 minutes.')
+        if self.refresh_seconds > 0:
+            output('<div class="well well-sm">')
+            output('Page automatically reloads every {0!s} seconds.'.format(self.refresh_seconds))
+        else:
+            output('<div class="well well-sm">')
+            output('Page automatically reloads every 5 minutes.')
         output('Last update: <b>{0!s}</b></div>'.format(
             datetime.now().strftime(self.datetime_format)))
         output('</div></body></html>')

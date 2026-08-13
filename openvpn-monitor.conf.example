@@ -7,6 +7,7 @@ maps=True
 maps_height=500
 geoip_data=./data/IP2LOCATION-LITE-DB11.BIN
 datetime_format=%d/%m/%Y %H:%M:%S
+#refresh_seconds=0
 
 [VPN1]
 host=localhost

@@ -216,6 +216,12 @@ cp openvpn-monitor.conf.example openvpn-monitor.conf
 In this file you can set site name, add a logo, set the default map location
 (latitude and longitude). If not set, the default location is New York, USA.
 
+The `refresh_seconds` option controls how often the page automatically reloads
+via a `<meta http-equiv="refresh">` tag. Set it to a positive integer for the
+number of seconds between reloads (e.g. `refresh_seconds=60` reloads every
+minute). The default is `0`, which means auto-refresh is disabled and the
+built-in 5-minute meta refresh is used instead.
+
 Once configured, navigate to `http://myipaddress/openvpn-monitor/`
 
 Note the trailing slash, the images may not appear without it.
