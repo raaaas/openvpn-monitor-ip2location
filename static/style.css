@@ -1,0 +1,395 @@
+/* =========================================================
+   openvpn-monitor — modern dark theme overlay
+   All rules use specificity that wins over Bootstrap 3 defaults
+   without touching any HTML markup, ids, or classes.
+   ========================================================= */
+
+/* ---------- Base / body ---------- */
+body {
+  background-color: #1a1d23;
+  color: #d0d3da;
+  font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3, h4, h5, h6 {
+  color: #e8eaef;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+a {
+  color: #5dadec;
+  transition: color 0.15s ease;
+}
+a:hover,
+a:focus {
+  color: #82c4ff;
+  text-decoration: none;
+}
+
+/* ---------- Navbar (.navbar-inverse — Bootstrap 3 override) ---------- */
+.navbar-inverse {
+  background-color: #111318;
+  border-color: #2a2e38;
+  border-radius: 0;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+.navbar-inverse .navbar-brand {
+  color: #e8eaef;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  transition: color 0.15s ease;
+}
+.navbar-inverse .navbar-brand:hover,
+.navbar-inverse .navbar-brand:focus {
+  color: #5dadec;
+}
+.navbar-inverse .navbar-nav > li > a {
+  color: #b0b5c0;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.navbar-inverse .navbar-nav > li > a:hover,
+.navbar-inverse .navbar-nav > li > a:focus {
+  color: #e8eaef;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+.navbar-inverse .navbar-nav > .open > a,
+.navbar-inverse .navbar-nav > .open > a:hover,
+.navbar-inverse .navbar-nav > .open > a:focus {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #e8eaef;
+}
+.navbar-inverse .navbar-nav > .dropdown > a .caret {
+  border-top-color: #b0b5c0;
+  border-bottom-color: #b0b5c0;
+}
+.navbar-inverse .navbar-toggle {
+  border-color: #2a2e38;
+}
+.navbar-inverse .navbar-toggle:hover,
+.navbar-inverse .navbar-toggle:focus {
+  background-color: #2a2e38;
+}
+.navbar-inverse .navbar-toggle .icon-bar {
+  background-color: #b0b5c0;
+}
+.navbar-inverse .navbar-collapse {
+  border-color: #2a2e38;
+}
+/* Dropdown menu */
+.navbar-inverse .navbar-nav > .dropdown > ul.dropdown-menu {
+  background-color: #1e2128;
+  border: 1px solid #2a2e38;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  padding: 6px 0;
+  margin-top: 4px;
+}
+.navbar-inverse .navbar-nav > .dropdown > ul.dropdown-menu > li > a {
+  color: #b0b5c0;
+  padding: 8px 18px;
+  font-size: 13px;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.navbar-inverse .navbar-nav > .dropdown > ul.dropdown-menu > li > a:hover,
+.navbar-inverse .navbar-nav > .dropdown > ul.dropdown-menu > li > a:focus {
+  background-color: #2a2e38;
+  color: #e8eaef;
+}
+
+/* ---------- Panels → card-style ---------- */
+.panel {
+  background-color: #22252b;
+  border: 1px solid #2a2e38;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  margin-bottom: 24px;
+  transition: box-shadow 0.2s ease;
+}
+.panel:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+.panel-heading {
+  background-color: #2a2e38;
+  border-bottom: 1px solid #32363f;
+  border-radius: 10px 10px 0 0 !important;
+  padding: 14px 18px;
+}
+.panel-title {
+  color: #e8eaef;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.panel-body {
+  background-color: #22252b;
+  color: #d0d3da;
+  padding: 18px;
+}
+.panel-footer {
+  background-color: #1a1d23;
+  border-top: 1px solid #2a2e38;
+  border-radius: 0 0 10px 10px !important;
+  color: #6b7280;
+  font-size: 11px;
+  padding: 10px 18px;
+}
+
+/* Panel colour variants */
+.panel-success {
+  border-color: #1e6b4a;
+}
+.panel-success > .panel-heading {
+  background-color: #1a5c3d;
+  border-bottom-color: #237a55;
+}
+.panel-success > .panel-heading .panel-title {
+  color: #7ddfb4;
+}
+.panel-danger {
+  border-color: #7a1e2d;
+}
+.panel-danger > .panel-heading {
+  background-color: #6b1a28;
+  border-bottom-color: #9a2238;
+}
+.panel-danger > .panel-heading .panel-title {
+  color: #f4a0ad;
+}
+.panel-danger .panel-body {
+  color: #f0c7cc;
+}
+.panel-info {
+  border-color: #1e4d7a;
+}
+.panel-info > .panel-heading {
+  background-color: #1a3f6b;
+  border-bottom-color: #2260a0;
+}
+.panel-info > .panel-heading .panel-title {
+  color: #7db8f4;
+}
+
+/* ---------- Tables ---------- */
+.table {
+  color: #d0d3da;
+  margin-bottom: 0;
+}
+.table > thead > tr > th {
+  background-color: #1e2128;
+  color: #8b919d;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid #2a2e38;
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+.table > tbody > tr > td {
+  border-top: 1px solid #2a2e38;
+  padding: 10px 12px;
+  vertical-align: middle;
+  font-size: 13px;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #1e2128;
+}
+.table-striped > tbody > tr:nth-of-type(even) {
+  background-color: #22252b;
+}
+.table-hover > tbody > tr:hover {
+  background-color: #2a2e38;
+}
+.table-bordered {
+  border: 1px solid #2a2e38;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.table-bordered > thead > tr > th,
+.table-bordered > tbody > tr > td {
+  border: 1px solid #2a2e38;
+}
+.table-condensed > thead > tr > th,
+.table-condensed > tbody > tr > td {
+  padding: 7px 10px;
+}
+
+/* tablesorter Bootstrap theme overrides */
+.tablesorter-bootstrap thead th,
+.tablesorter-bootstrap tfoot th {
+  background-color: #1e2128;
+  color: #8b919d;
+  border-bottom: 2px solid #2a2e38;
+}
+.tablesorter-bootstrap .tablesorter-header {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%238b919d' stroke-width='2'%3E%3Cpath d='M12 5v14M5 12l7-7 7 7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  padding-right: 20px;
+}
+.tablesorter-bootstrap .tablesorter-headerAsc {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%235dadec' stroke-width='2'%3E%3Cpath d='M12 5v14M5 12l7-7 7 7'/%3E%3C/svg%3E") !important;
+}
+.tablesorter-bootstrap .tablesorter-headerDesc {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%235dadec' stroke-width='2'%3E%3Cpath d='M12 19V5M5 12l7 7 7-7'/%3E%3C/svg%3E") !important;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  padding: 6px 14px;
+  border: none;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-default {
+  background-color: #32363f;
+  color: #d0d3da;
+}
+.btn-default:hover,
+.btn-default:focus {
+  background-color: #3e424d;
+  color: #e8eaef;
+}
+.btn-primary {
+  background-color: #2b7ab3;
+  color: #ffffff;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #3488cc;
+  color: #ffffff;
+}
+.btn-success {
+  background-color: #1e6b4a;
+  color: #ffffff;
+}
+.btn-success:hover,
+.btn-success:focus {
+  background-color: #237a55;
+  color: #ffffff;
+}
+.btn-danger {
+  background-color: #9a2238;
+  color: #ffffff;
+}
+.btn-danger:hover,
+.btn-danger:focus {
+  background-color: #b82a45;
+  color: #ffffff;
+}
+.btn-info {
+  background-color: #2260a0;
+  color: #ffffff;
+}
+.btn-info:hover,
+.btn-info:focus {
+  background-color: #2a70b8;
+  color: #ffffff;
+}
+.btn-warning {
+  background-color: #9a6d1a;
+  color: #ffffff;
+}
+.btn-warning:hover,
+.btn-warning:focus {
+  background-color: #b88422;
+  color: #ffffff;
+}
+
+/* ---------- Wells ---------- */
+.well {
+  background-color: #1e2128;
+  border: 1px solid #2a2e38;
+  border-radius: 8px;
+  color: #8b919d;
+  font-size: 12px;
+  box-shadow: none;
+}
+.well-sm {
+  border-radius: 6px;
+}
+
+/* ---------- Pagination ---------- */
+.pagination > li > a,
+.pagination > li > span {
+  background-color: #22252b;
+  border-color: #2a2e38;
+  color: #b0b5c0;
+}
+.pagination > li > a:hover,
+.pagination > li > span:hover {
+  background-color: #2a2e38;
+  color: #e8eaef;
+}
+.pagination > .active > a,
+.pagination > .active > span {
+  background-color: #2b7ab3;
+  border-color: #2b7ab3;
+  color: #ffffff;
+}
+.pagination > .disabled > a,
+.pagination > .disabled > a:hover,
+.pagination > .disabled > span,
+.pagination > .disabled > span:hover {
+  background-color: #1a1d23;
+  color: #4a4f5a;
+}
+
+/* ---------- Form controls ---------- */
+.form-control {
+  background-color: #1e2128;
+  border: 1px solid #2a2e38;
+  color: #d0d3da;
+  border-radius: 6px;
+  box-shadow: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.form-control:focus {
+  background-color: #1e2128;
+  border-color: #2b7ab3;
+  color: #e8eaef;
+  box-shadow: 0 0 0 3px rgba(43, 122, 179, 0.2);
+  outline: none;
+}
+.form-control::placeholder {
+  color: #4a4f5a;
+}
+select.form-control {
+  background-color: #1e2128;
+}
+
+/* ---------- Dropdown caret colour (Bootstrap 3) ---------- */
+.navbar-inverse .navbar-nav > .dropdown > a .caret {
+  border-top-color: #b0b5c0;
+  border-bottom-color: #b0b5c0;
+}
+
+/* ---------- Misc helpers ---------- */
+hr {
+  border-color: #2a2e38;
+}
+
+code, pre {
+  background-color: #1e2128;
+  border: 1px solid #2a2e38;
+  color: #7ddfb4;
+  border-radius: 4px;
+}
+
+/* flag images — subtle rounded corners */
+td > img[alt] {
+  border-radius: 3px;
+  vertical-align: middle;
+}
