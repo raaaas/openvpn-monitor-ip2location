@@ -21,7 +21,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os, IP2Location, sys, ipaddress
+import os, sys, ipaddress
 
 try:
     import ConfigParser as configparser
@@ -45,6 +45,12 @@ try:
     geoip2_available = True
 except ImportError:
     geoip2_available = False
+
+try:
+    import IP2Location
+    ip2location_available = True
+except ImportError:
+    ip2location_available = False
 
 import argparse
 import os
@@ -179,6 +185,7 @@ class OpenvpnMgmtInterface(object):
 
     def __init__(self, cfg, **kwargs):
         self.vpns = cfg.vpns
+        self.geoip_data = cfg.settings.get('geoip_data', './data/IP2LOCATION-LITE-DB11.BIN')
 
         if kwargs.get('vpn_id'):
             vpn = self.vpns[kwargs['vpn_id']]
@@ -411,22 +418,19 @@ class OpenvpnMgmtInterface(object):
                 elif session['remote_ip'].is_loopback:
                     session['location'] = 'loopback'
                 else:
-                    try:
-                        databasemine = IP2Location.IP2Location(os.path.join("data", "IP2LOCATION-LITE-DB11.BIN"))
-                        #databasemine = IP2Location.IP2Location(self.setting["geoip_data"])
-                        rec = databasemine.get_all(str(session['remote_ip']))
-                        session['location'] = rec.country_short
-                        session['region']   = rec.region
-                        session['city']     = rec.city
-                        session['country']  = rec.country_long
-                        session['longitude']= rec.longitude
-                        session['latitude'] = rec.latitude
-                        session['isp']      = rec.isp
-
-                    except ValueError:
-                        pass
-                    except SystemError:
-                        pass
+                    if ip2location_available:
+                        try:
+                            databasemine = IP2Location.IP2Location(self.geoip_data)
+                            rec = databasemine.get_all(str(session['remote_ip']))
+                            session['location'] = rec.country_short
+                            session['region']   = rec.region
+                            session['city']     = rec.city
+                            session['country']  = rec.country_long
+                            session['longitude']= rec.longitude
+                            session['latitude'] = rec.latitude
+                            session['isp']      = rec.isp
+                        except Exception:
+                            pass
                 local_ipv4 = parts.popleft()
                 if local_ipv4:
                     session['local_ip'] = ip_address(local_ipv4)
@@ -707,7 +711,7 @@ class OpenvpnHtmlPrinter(object):
         output('<td>{0!s}</td>'.format(up_since.strftime(self.datetime_format)))
         output('<td>{0!s}</td>'.format(local_ip))
         if vpn_mode == 'Client':
-            output('<td>{0!s} / {1!s}</td>'.format(remote_ip , session['isp']))
+            output('<td>{0!s}</td>'.format(remote_ip))
         output('</tr></tbody></table></div>')
 
         if vpn_mode == 'Client' or nclients > 0:
