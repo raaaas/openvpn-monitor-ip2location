@@ -7,6 +7,11 @@ maps=True
 maps_height=500
 geoip_data=./data/IP2LOCATION-LITE-DB11.BIN
 datetime_format=%d/%m/%Y %H:%M:%S
+# Uncomment and set the following three options to enable simple login.
+# When left unset the monitor works without authentication (backwards compatible).
+#username=
+#password=
+#secret=
 
 [VPN1]
 host=localhost

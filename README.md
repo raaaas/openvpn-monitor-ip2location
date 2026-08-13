@@ -1,9 +1,11 @@
 # openvpn-monitor
 
 ## todo list
-  - change iplockup/whois ✅
-  - add simple login
-  - add user history 
+
+- change iplockup/whois ✅
+- add simple login ✅
+- add user history
+
 ## Summary
 
 openvpn-monitor is a simple python program to generate html that displays the
@@ -13,12 +15,11 @@ server, however it does not necessarily need to.
 
 [![](https://raw.githubusercontent.com/furlongm/openvpn-monitor/gh-pages/screenshots/openvpn-monitor.png)](https://raw.githubusercontent.com/furlongm/openvpn-monitor/gh-pages/screenshots/openvpn-monitor.png)
 
-
 ## Supported Operating Systems
-  - Ubuntu 20.04 LTS (focal)
-  - Debian 10 (buster)
-  - CentOS/RHEL 8
 
+- Ubuntu 20.04 LTS (focal)
+- Debian 10 (buster)
+- CentOS/RHEL 8
 
 ## Source
 
@@ -26,14 +27,13 @@ The current source code is available on github:
 
 https://github.com/furlongm/openvpn-monitor
 
-
 ## Install Options
 
-  - [virtualenv + pip + gunicorn](#virtualenv--pip--gunicorn)
-  - [apache](#apache)
-  - [docker](#docker)
-  - [nginx + uwsgi](#nginx--uwsgi)
-  - [deb/rpm](#deb--rpm)
+- [virtualenv + pip + gunicorn](#virtualenv--pip--gunicorn)
+- [apache](#apache)
+- [docker](#docker)
+- [nginx + uwsgi](#nginx--uwsgi)
+- [deb/rpm](#deb--rpm)
 
 N.B. all CentOS/RHEL instructions assume the EPEL repository has been installed:
 
@@ -50,7 +50,6 @@ semanage port -a -t openvpn_port_t -p tcp 5555
 setsebool -P httpd_can_network_connect=1
 ```
 
-
 ### virtualenv + pip + gunicorn
 
 ```shell
@@ -65,7 +64,6 @@ gunicorn openvpn-monitor -b 0.0.0.0:80
 ```
 
 See [configuration](#configuration) for details on configuring openvpn-monitor.
-
 
 ### apache
 
@@ -97,7 +95,6 @@ git clone https://github.com/furlongm/openvpn-monitor.git
 
 See [configuration](#configuration) for details on configuring openvpn-monitor.
 
-
 ### docker
 
 ```shell
@@ -107,7 +104,6 @@ docker run -p 80:80 ruimarinho/openvpn-monitor
 Read the [docker installation instructions](https://github.com/ruimarinho/docker-openvpn-monitor#usage)
 for details on how to generate a dynamic configuration using only environment
 variables.
-
 
 ### nginx + uwsgi
 
@@ -172,8 +168,6 @@ systemctl restart nginx
 
 See [configuration](#configuration) for details on configuring openvpn-monitor.
 
-
-
 ### deb / rpm
 
 ```shell
@@ -202,7 +196,6 @@ management socket-name unix pw-file
 Refer to the OpenVPN documentation for further information on how to secure
 access to the management interface.
 
-
 ### Configure openvpn-monitor
 
 Copy the example configuration file `openvpn-monitor.conf.example` to the same
@@ -216,10 +209,31 @@ cp openvpn-monitor.conf.example openvpn-monitor.conf
 In this file you can set site name, add a logo, set the default map location
 (latitude and longitude). If not set, the default location is New York, USA.
 
+#### Simple login
+
+To protect the monitor page with a username and password, add the following
+options to the `[openvpn-monitor]` section of `openvpn-monitor.conf`:
+
+```
+username=admin
+password=secret
+secret=some-random-cookie-secret
+```
+
+`secret` is used to sign the session cookie — choose a long random string and
+keep it private.
+
+When these three options are set, all monitor routes are protected by a login
+page at `/login`. A **Logout** link appears in the navigation bar and clears
+the session cookie.
+
+Login is **optional and backwards compatible**: when `username` and `password`
+are not configured, the monitor page works exactly as before with no login
+prompt.
+
 Once configured, navigate to `http://myipaddress/openvpn-monitor/`
 
 Note the trailing slash, the images may not appear without it.
-
 
 ### Debugging
 
@@ -238,12 +252,10 @@ cd /var/www/html/openvpn-monitor
 python3 openvpn-monitor.py -d
 ```
 
-
 ## License
 
 openvpn-monitor is licensed under the GPLv3, a copy of which can be found in
 the COPYING file.
-
 
 ## Acknowledgements
 

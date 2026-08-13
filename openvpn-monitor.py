@@ -149,7 +149,9 @@ class ConfigLoader(object):
                                     'show_disconnect': False}
 
     def parse_global_section(self, config):
-        global_vars = ['site', 'logo', 'latitude', 'longitude', 'maps', 'maps_height', 'geoip_data', 'datetime_format']
+        global_vars = ['site', 'logo', 'latitude', 'longitude', 'maps',
+                       'maps_height', 'geoip_data', 'datetime_format',
+                       'username', 'password', 'secret']
         for var in global_vars:
             try:
                 self.settings[var] = config.get('openvpn-monitor', var)
@@ -163,6 +165,11 @@ class ConfigLoader(object):
                 pass
         if args.debug:
             debug("=== begin section\n{0!s}\n=== end section".format(self.settings))
+
+    def is_login_required(self):
+        return bool(self.settings.get('username') and
+                    self.settings.get('password') and
+                    self.settings.get('secret'))
 
     def parse_vpn_section(self, config, section):
         self.vpns[section] = {}
@@ -505,6 +512,7 @@ class OpenvpnMgmtInterface(object):
 class OpenvpnHtmlPrinter(object):
 
     def __init__(self, cfg, monitor):
+        self.cfg = cfg
         self.init_vars(cfg.settings, monitor)
         self.print_html_header()
         for key, vpn in self.vpns:
@@ -579,46 +587,7 @@ class OpenvpnHtmlPrinter(object):
 
         output('</head><body>')
 
-        output('<nav class="navbar navbar-inverse">')
-        output('<div class="container-fluid">')
-        output('<div class="navbar-header">')
-        output('<button type="button" class="navbar-toggle" ')
-        output('data-toggle="collapse" data-target="#myNavbar">')
-        output('<span class="icon-bar"></span>')
-        output('<span class="icon-bar"></span>')
-        output('<span class="icon-bar"></span>')
-        output('</button>')
-
-        output('<a class="navbar-brand" href="#">')
-        output('{0!s} OpenVPN Status Monitor</a>'.format(self.site))
-
-        output('</div><div class="collapse navbar-collapse" id="myNavbar">')
-        output('<ul class="nav navbar-nav"><li class="dropdown">')
-        output('<a class="dropdown-toggle" data-toggle="dropdown" href="#">VPN')
-        output('<span class="caret"></span></a>')
-        output('<ul class="dropdown-menu">')
-
-        for _, vpn in self.vpns:
-            if vpn['name']:
-                anchor = vpn['name'].lower().replace(' ', '_')
-                output('<li><a href="#{0!s}">{1!s}</a></li>'.format(anchor, vpn['name']))
-        output('</ul></li>')
-
-        if self.maps:
-            output('<li><a href="#map_canvas">Map View</a></li>')
-
-        output('</ul>')
-
-        if self.logo:
-            output('<a href="#" class="pull-right"><img alt="Logo" ')
-            output('style="max-height:46px; padding-top:3px;" ')
-            if self.logo.startswith("http"):
-                output('src="{0!s}"></a>'.format(self.logo))
-            else:
-                output('src="images/{0!s}"></a>'.format(self.logo))
-
-        output('</div></div></nav>')
-        output('<div class="container-fluid">')
+        self.print_nav()
 
     @staticmethod
     def print_session_table_headers(vpn_mode, show_disconnect):
@@ -654,10 +623,10 @@ class OpenvpnHtmlPrinter(object):
 
     @staticmethod
     def print_unavailable_vpn(vpn):
-        anchor = vpn['name'].lower().replace(' ', '_')
+        anchor = vpn.get('name', '').lower().replace(' ', '_')
         output('<div class="panel panel-danger" id="{0!s}">'.format(anchor))
         output('<div class="panel-heading">')
-        output('<h3 class="panel-title">{0!s}</h3></div>'.format(vpn['name']))
+        output('<h3 class="panel-title">{0!s}</h3></div>'.format(vpn.get('name', '')))
         output('<div class="panel-body">')
         output('Could not connect to ')
         if vpn.get('host') and vpn.get('port'):
@@ -857,6 +826,64 @@ class OpenvpnHtmlPrinter(object):
             datetime.now().strftime(self.datetime_format)))
         output('</div></body></html>')
 
+    def print_nav(self):
+        output('<nav class="navbar navbar-inverse">')
+        output('<div class="container-fluid">')
+        output('<div class="navbar-header">')
+        output('<button type="button" class="navbar-toggle" '
+               'data-toggle="collapse" data-target="#myNavbar">')
+        output('<span class="icon-bar"></span>')
+        output('<span class="icon-bar"></span>')
+        output('<span class="icon-bar"></span>')
+        output('</button>')
+        output('<a class="navbar-brand" href="#">')
+        output('{0!s} OpenVPN Status Monitor</a>'.format(self.site))
+        output('</div><div class="collapse navbar-collapse" id="myNavbar">')
+        output('<ul class="nav navbar-nav"><li class="dropdown">')
+        output('<a class="dropdown-toggle" data-toggle="dropdown" href="#">VPN')
+        output('<span class="caret"></span></a>')
+        output('<ul class="dropdown-menu">')
+        for _, vpn in self.vpns:
+            if vpn.get('name'):
+                anchor = vpn['name'].lower().replace(' ', '_')
+                output('<li><a href="#{0!s}">{1!s}</a></li>'.format(anchor, vpn['name']))
+        output('</ul></li>')
+        if self.maps:
+            output('<li><a href="#map_canvas">Map View</a></li>')
+        if self.cfg.settings.get('username') and \
+                request.get_cookie('openvpn-monitor-session',
+                                   secret=self.cfg.settings.get('secret', '')):
+            output('<li><a href="/logout">Logout</a></li>')
+        output('</ul>')
+        if self.logo:
+            output('<a href="#" class="pull-right"><img alt="Logo" ')
+            output('style="max-height:46px; padding-top:3px;" ')
+            if self.logo.startswith("http"):
+                output('src="{0!s}"></a>'.format(self.logo))
+            else:
+                output('src="images/{0!s}"></a>'.format(self.logo))
+        output('</div></div></nav>')
+        output('<div class="container-fluid">')
+
+    def print_login_form(self):
+        self.print_nav()
+        output('<div class="panel panel-warning">')
+        output('<div class="panel-heading"><h3 class="panel-title">Login</h3></div>')
+        output('<div class="panel-body">')
+        output('<form method="post">')
+        output('<div class="form-group">')
+        output('<label for="username">Username</label>')
+        output('<input type="text" class="form-control" id="username" name="username" autofocus>')
+        output('</div>')
+        output('<div class="form-group">')
+        output('<label for="password">Password</label>')
+        output('<input type="password" class="form-control" id="password" name="password">')
+        output('</div>')
+        output('<button type="submit" class="btn btn-primary">Login</button>')
+        output('</form>')
+        output('</div></div>')
+        output('</div></body></html>')
+
 
 def main(**kwargs):
     cfg = ConfigLoader(args.config)
@@ -904,10 +931,50 @@ def monitor_wsgi():
         return wsgi_output
 
     @app.hook('before_request')
+    def require_login():
+        cfg = ConfigLoader(args.config)
+        if cfg.is_login_required() and request.path not in ('/login', '/logout'):
+            if not request.get_cookie('openvpn-monitor-session',
+                                       secret=cfg.settings.get('secret', '')):
+                redirect('/login')
+
+    @app.hook('before_request')
     def strip_slash():
         request.environ['PATH_INFO'] = request.environ.get('PATH_INFO', '/').rstrip('/')
         if args.debug:
             debug(pformat(request.environ))
+
+    @app.route('/login', method='GET')
+    def login_get():
+        cfg = ConfigLoader(args.config)
+        printer = OpenvpnHtmlPrinter(cfg, type(
+            'obj', (object,), {'vpns': OrderedDict(), 'socket_connected': False}
+        )())
+        printer.print_login_form()
+        response.content_type = 'text/html;'
+        return wsgi_output
+
+    @app.route('/login', method='POST')
+    def login_post():
+        cfg = ConfigLoader(args.config)
+        username = request.forms.get('username', '')
+        password = request.forms.get('password', '')
+        if (username == cfg.settings.get('username') and
+                password == cfg.settings.get('password')):
+            response.set_cookie('openvpn-monitor-session', 'authenticated',
+                                secret=cfg.settings.get('secret', ''))
+            redirect('/')
+        printer = OpenvpnHtmlPrinter(cfg, type(
+            'obj', (object,), {'vpns': OrderedDict(), 'socket_connected': False}
+        )())
+        printer.print_login_form()
+        response.content_type = 'text/html;'
+        return wsgi_output
+
+    @app.route('/logout', method='GET')
+    def logout():
+        response.delete_cookie('openvpn-monitor-session')
+        redirect('/login')
 
     @app.route('/', method='GET')
     def get_slash():
@@ -934,7 +1001,7 @@ if __name__.startswith('_mod_wsgi_') or \
     if __file__ != 'openvpn-monitor.py':
         os.chdir(os.path.dirname(__file__))
         sys.path.append(os.path.dirname(__file__))
-    from bottle import Bottle, response, request, static_file
+    from bottle import Bottle, response, request, redirect, static_file
 
     class args(object):
         debug = False
